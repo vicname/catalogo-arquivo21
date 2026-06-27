@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arquivo 21 — Catálogo de Produtos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --marrom: #5C3D2E; --marrom-deep: #3E2217; --marrom-light: #8B6555; --dourado: #C9A84C; --dourado-light: #E8D08A; --dourado-pale: #F5EDD3; --offwhite: #FAF7F2; --terracota: #9E6B4A; --cinza: #6B6059; --cinza-light: #D8CFC8; --branco: #FFFFFF; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Jost', sans-serif; background: var(--offwhite); color: var(--marrom-deep); min-height: 100vh; }
+    header { background: var(--marrom-deep); padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--dourado); }
+    header .brand { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 500; letter-spacing: 0.12em; color: var(--dourado-light); }
+    header .brand span { display: block; font-size: 11px; font-family: 'Jost', sans-serif; font-weight: 300; letter-spacing: 0.3em; color: var(--cinza-light); text-transform: uppercase; margin-top: 2px; }
+    header .btn-novo { background: var(--dourado); color: var(--marrom-deep); border: none; padding: 10px 24px; font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
+    header .btn-novo:hover { background: var(--dourado-light); }
+    .toolbar { background: var(--branco); border-bottom: 1px solid var(--cinza-light); padding: 16px 40px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .toolbar input[type="text"] { flex: 1; min-width: 200px; border: 1px solid var(--cinza-light); padding: 9px 16px; font-family: 'Jost', sans-serif; font-size: 13px; color: var(--marrom-deep); background: var(--offwhite); outline: none; transition: border 0.2s; }
+    .toolbar input[type="text"]:focus { border-color: var(--dourado); }
+    .toolbar input::placeholder { color: var(--cinza); }
+    .filtro-cat { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filtro-cat button { border: 1px solid var(--cinza-light); background: transparent; padding: 7px 16px; font-family: 'Jost', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.08em; color: var(--cinza); cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+    .filtro-cat button:hover { border-color: var(--dourado); color: var(--marrom); }
+    .filtro-cat button.ativo { background: var(--marrom); border-color: var(--marrom); color: var(--dourado-light); }
+    .toolbar .count { font-size: 12px; color: var(--cinza); letter-spacing: 0.05em; margin-left: auto; white-space: nowrap; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; padding: 32px 40px; }
+    .empty-state { grid-column: 1/-1; text-align: center; padding: 80px 20px; }
+    .empty-state h2 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: var(--marrom-light); margin-bottom: 10px; }
+    .empty-state p { font-size: 13px; color: var(--cinza); letter-spacing: 0.05em; }
+    .card { background: var(--branco); border: 1px solid var(--cinza-light); padding: 0; display: flex; flex-direction: column; transition: box-shadow 0.2s, border-color 0.2s; position: relative; overflow: hidden; }
+    .card:hover { box-shadow: 0 4px 20px rgba(92,61,46,0.1); border-color: var(--dourado); }
+    .card-header { background: var(--marrom-deep); padding: 18px 20px 14px; border-bottom: 1px solid var(--dourado); }
+    .card-header .categoria { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--dourado); font-weight: 400; margin-bottom: 6px; }
+    .card-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; color: var(--offwhite); line-height: 1.2; }
+    .card-header .sku { font-size: 10px; color: var(--cinza-light); margin-top: 4px; letter-spacing: 0.15em; }
+    .card-body { padding: 18px 20px; flex: 1; }
+    .campo { margin-bottom: 14px; }
+    .campo:last-child { margin-bottom: 0; }
+    .campo-label { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--marrom-light); font-weight: 500; margin-bottom: 4px; }
+    .campo-valor { font-size: 13px; color: var(--marrom-deep); line-height: 1.5; }
+    .campo-valor.preco { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--dourado); }
+    .campo-valor a { color: var(--terracota); font-size: 12px; text-decoration: none; letter-spacing: 0.05em; }
+    .campo-valor a:hover { text-decoration: underline; }
+    .copy-box { background: var(--dourado-pale); border-left: 3px solid var(--dourado); padding: 12px 14px; margin-top: 14px; }
+    .copy-box .copy-label { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--terracota); font-weight: 500; margin-bottom: 6px; }
+    .copy-box p { font-size: 13px; color: var(--marrom-deep); line-height: 1.6; white-space: pre-wrap; }
+    .copy-box .btn-copiar { margin-top: 8px; background: transparent; border: 1px solid var(--dourado); color: var(--marrom); font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; padding: 5px 12px; cursor: pointer; transition: all 0.2s; }
+    .copy-box .btn-copiar:hover { background: var(--dourado); color: var(--marrom-deep); }
+    .card-actions { display: flex; border-top: 1px solid var(--cinza-light); }
+    .card-actions button { flex: 1; border: none; background: transparent; padding: 12px; font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.15s; color: var(--cinza); }
+    .card-actions button:hover { background: var(--offwhite); color: var(--marrom); }
+    .card-actions .btn-del:hover { background: #fdf0f0; color: #a83232; }
+    .card-actions button + button { border-left: 1px solid var(--cinza-light); }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(30,16,8,0.55); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+    .overlay.aberto { display: flex; }
+    .modal { background: var(--offwhite); width: 100%; max-width: 620px; max-height: 90vh; overflow-y: auto; border-top: 3px solid var(--dourado); box-shadow: 0 20px 60px rgba(30,16,8,0.4); }
+    .modal-header { background: var(--marrom-deep); padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--dourado-light); letter-spacing: 0.05em; }
+    .modal-header button { background: none; border: none; color: var(--cinza-light); font-size: 22px; cursor: pointer; line-height: 1; padding: 0 4px; }
+    .modal-header button:hover { color: var(--dourado); }
+    .modal-body { padding: 28px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-row.full { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--marrom-light); font-weight: 500; margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea { border: 1px solid var(--cinza-light); background: var(--branco); padding: 10px 14px; font-family: 'Jost', sans-serif; font-size: 13px; color: var(--marrom-deep); outline: none; transition: border 0.2s; resize: vertical; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--dourado); }
+    .form-group textarea { min-height: 80px; }
+    .secao-divider { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--dourado); border-bottom: 1px solid var(--dourado-pale); padding-bottom: 6px; margin: 20px 0 16px; }
+    .modal-footer { padding: 0 28px 28px; display: flex; gap: 12px; justify-content: flex-end; }
+    .btn-cancelar { border: 1px solid var(--cinza-light); background: transparent; padding: 11px 24px; font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cinza); cursor: pointer; transition: all 0.2s; }
+    .btn-cancelar:hover { border-color: var(--marrom); color: var(--marrom); }
+    .btn-salvar { background: var(--dourado); border: none; padding: 11px 28px; font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; color: var(--marrom-deep); cursor: pointer; transition: background 0.2s; }
+    .btn-salvar:hover { background: var(--dourado-light); }
+    .toast { position: fixed; bottom: 30px; right: 30px; background: var(--marrom-deep); color: var(--dourado-light); padding: 12px 20px; font-size: 12px; letter-spacing: 0.1em; z-index: 999; opacity: 0; transition: opacity 0.3s; border-left: 3px solid var(--dourado); }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">ARQUIVO 21<span>Catálogo de Produtos</span></div>
+  <button class="btn-novo" onclick="abrirModal()">+ Novo Produto</button>
+</header>
+<div class="toolbar">
+  <input type="text" id="busca" placeholder="Buscar produto..." oninput="renderizar()" />
+  <div class="filtro-cat" id="filtros"></div>
+  <span class="count" id="count"></span>
+</div>
+<div class="grid" id="grid"></div>
+<div class="overlay" id="overlay" onclick="fecharModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 id="modal-titulo">Novo Produto</h2>
+      <button onclick="fecharModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Nome do Produto *</label><input type="text" id="f-nome" placeholder="Ex: Planner Semanal A5" /></div>
+        <div class="form-group"><label>Categoria *</label><select id="f-categoria"><option value="">Selecionar...</option><option>Planner</option><option>Caderno</option><option>Kit Diário</option><option>Caneta</option><option>Acessório</option><option>Curadoria</option><option>Outro</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>SKU</label><input type="text" id="f-sku" placeholder="Ex: ARQ-PLN-001" /></div>
+        <div class="form-group"><label>Preço de Venda (R$)</label><input type="text" id="f-preco" placeholder="Ex: 89,90" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Fornecedor</label><input type="text" id="f-fornecedor" placeholder="Ex: Cicero, Molin, Sabra..." /></div>
+        <div class="form-group"><label>Link de Referência</label><input type="url" id="f-link" placeholder="https://..." /></div>
+      </div>
+      <div class="form-row full"><div class="form-group"><label>Descrição do Produto</label><textarea id="f-descricao" placeholder="Características, materiais, tamanho, diferenciais..."></textarea></div></div>
+      <div class="form-row full"><div class="form-group"><label>Notas de Roteiro</label><textarea id="f-notas" placeholder="Contexto e observações de uso para os roteiros..."></textarea></div></div>
+      <div class="secao-divider">Copy &amp; Ângulos de Venda</div>
+      <div class="form-row full"><div class="form-group"><label>Copy Principal</label><textarea id="f-copy" style="min-height:100px" placeholder="Frase/argumento principal de venda para usar no roteiro..."></textarea></div></div>
+      <div class="form-row full"><div class="form-group"><label>Ângulos de Conteúdo</label><textarea id="f-angulos" style="min-height:90px" placeholder="Ângulos, ganchos ou enquadramentos possíveis..."></textarea></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-salvar" onclick="salvar()">Salvar Produto</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+  const CHAVE = 'arquivo21_catalogo_v1';
+  let produtos = JSON.parse(localStorage.getItem(CHAVE) || '[]');
+  let editandoId = null;
+  let filtroAtivo = 'Todos';
+  function salvarLocal() { localStorage.setItem(CHAVE, JSON.stringify(produtos)); }
+  function categorias() { return ['Todos', ...[...new Set(produtos.map(p => p.categoria).filter(Boolean))].sort()]; }
+  function renderizarFiltros() { document.getElementById('filtros').innerHTML = categorias().map(c => '<button class="' + (c === filtroAtivo ? 'ativo' : '') + '" onclick="setFiltro(\'' + c + '\')">' + c + '</button>').join(''); }
+  function setFiltro(c) { filtroAtivo = c; renderizar(); }
+  function renderizar() {
+    renderizarFiltros();
+    const busca = document.getElementById('busca').value.toLowerCase();
+    const lista = produtos.filter(p => (filtroAtivo === 'Todos' || p.categoria === filtroAtivo) && (!busca || [p.nome,p.categoria,p.fornecedor,p.descricao,p.sku].some(v => v && v.toLowerCase().includes(busca))));
+    document.getElementById('count').textContent = lista.length + ' produto' + (lista.length !== 1 ? 's' : '');
+    const grid = document.getElementById('grid');
+    if (!lista.length) { grid.innerHTML = '<div class="empty-state"><h2>' + (produtos.length ? 'Nenhum resultado' : 'Catálogo vazio') + '</h2><p>' + (produtos.length ? 'Tente ajustar a busca.' : 'Clique em "+ Novo Produto" para começar.') + '</p></div>'; return; }
+    grid.innerHTML = lista.map(p => '<div class="card"><div class="card-header"><div class="categoria">' + (p.categoria||'—') + '</div><h3>' + esc(p.nome) + '</h3>' + (p.sku ? '<div class="sku">' + esc(p.sku) + '</div>' : '') + '</div><div class="card-body">' + (p.preco ? '<div class="campo"><div class="campo-label">Preço</div><div class="campo-valor preco">R$ ' + esc(p.preco) + '</div></div>' : '') + (p.fornecedor ? '<div class="campo"><div class="campo-label">Fornecedor</div><div class="campo-valor">' + esc(p.fornecedor) + '</div></div>' : '') + (p.descricao ? '<div class="campo"><div class="campo-label">Descrição</div><div class="campo-valor">' + esc(p.descricao) + '</div></div>' : '') + (p.notas ? '<div class="campo"><div class="campo-label">Notas de Roteiro</div><div class="campo-valor">' + esc(p.notas) + '</div></div>' : '') + (p.link ? '<div class="campo"><div class="campo-label">Referência</div><div class="campo-valor"><a href="' + esc(p.link) + '" target="_blank" rel="noopener">Acessar →</a></div></div>' : '') + ((p.copy||p.angulos) ? '<div class="copy-box"><div class="copy-label">Copy & Ângulos</div>' + (p.copy ? '<p>' + esc(p.copy) + '</p>' : '') + (p.angulos ? '<p style="margin-top:' + (p.copy?'10px':'0') + ';font-size:12px;color:var(--marrom-light)">' + esc(p.angulos) + '</p>' : '') + '<button class="btn-copiar" onclick="copiarCopy(\'' + p.id + '\')">Copiar</button></div>' : '') + '</div><div class="card-actions"><button onclick="editarProduto(\'' + p.id + '\')">Editar</button><button class="btn-del" onclick="deletar(\'' + p.id + '\')">Remover</button></div></div>').join('');
+  }
+  function abrirModal(id=null) {
+    editandoId=id; const p=id?produtos.find(x=>x.id===id):null;
+    document.getElementById('modal-titulo').textContent=id?'Editar Produto':'Novo Produto';
+    ['nome','categoria','sku','preco','fornecedor','link','descricao','notas','copy','angulos'].forEach(k=>{ document.getElementById('f-'+k).value=p?.[k]||''; });
+    document.getElementById('overlay').classList.add('aberto');
+    document.getElementById('f-nome').focus();
+  }
+  function fecharModal(evt) { if(evt&&evt.target!==document.getElementById('overlay'))return; document.getElementById('overlay').classList.remove('aberto'); editandoId=null; }
+  function editarProduto(id){abrirModal(id);}
+  function salvar() {
+    const nome=document.getElementById('f-nome').value.trim();
+    if(!nome){toast('Informe o nome.');return;}
+    const dados={id:editandoId||Date.now().toString(36)+Math.random().toString(36).slice(2),updatedAt:new Date().toISOString()};
+    ['nome','categoria','sku','preco','fornecedor','link','descricao','notas','copy','angulos'].forEach(k=>{dados[k]=document.getElementById('f-'+k).value.trim();});
+    if(editandoId){produtos[produtos.findIndex(p=>p.id===editandoId)]=dados;toast('Atualizado.');}
+    else{dados.createdAt=dados.updatedAt;produtos.push(dados);toast('Adicionado.');}
+    salvarLocal(); document.getElementById('overlay').classList.remove('aberto'); editandoId=null; renderizar();
+  }
+  function deletar(id){const p=produtos.find(x=>x.id===id);if(!confirm('Remover "'+p?.nome+'"?'))return;produtos=produtos.filter(x=>x.id!==id);salvarLocal();renderizar();toast('Removido.');}
+  function copiarCopy(id){const p=produtos.find(x=>x.id===id);navigator.clipboard.writeText([p.copy,p.angulos].filter(Boolean).join('
+
+')).then(()=>toast('Copiado!'));}
+  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/
+/g,'<br>');}
+  function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
+  renderizar();
+</script>
+</body>
+                                                                  </html>
