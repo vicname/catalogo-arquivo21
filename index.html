@@ -4,6 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Arquivo 21 — Catálogo de Produtos</title>
+  <meta name="description" content="Catálogo e curadoria de produtos da Arquivo 21: cadastro, copy e ângulos de venda." />
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#3E2217" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Catálogo A21" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -14,8 +24,12 @@
     header { background: var(--marrom-deep); padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--dourado); }
     header .brand { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 500; letter-spacing: 0.12em; color: var(--dourado-light); }
     header .brand span { display: block; font-size: 11px; font-family: 'Jost', sans-serif; font-weight: 300; letter-spacing: 0.3em; color: var(--cinza-light); text-transform: uppercase; margin-top: 2px; }
+    header .acoes { display: flex; align-items: center; gap: 12px; }
     header .btn-novo { background: var(--dourado); color: var(--marrom-deep); border: none; padding: 10px 24px; font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
     header .btn-novo:hover { background: var(--dourado-light); }
+    header .btn-instalar { display: none; background: transparent; color: var(--dourado-light); border: 1px solid var(--dourado); padding: 9px 18px; font-family: 'Jost', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+    header .btn-instalar:hover { background: var(--dourado); color: var(--marrom-deep); }
+    header .btn-instalar.visivel { display: inline-block; }
     .toolbar { background: var(--branco); border-bottom: 1px solid var(--cinza-light); padding: 16px 40px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .toolbar input[type="text"] { flex: 1; min-width: 200px; border: 1px solid var(--cinza-light); padding: 9px 16px; font-family: 'Jost', sans-serif; font-size: 13px; color: var(--marrom-deep); background: var(--offwhite); outline: none; transition: border 0.2s; }
     .toolbar input[type="text"]:focus { border-color: var(--dourado); }
@@ -81,7 +95,10 @@
 <body>
 <header>
   <div class="brand">ARQUIVO 21<span>Catálogo de Produtos</span></div>
-  <button class="btn-novo" onclick="abrirModal()">+ Novo Produto</button>
+  <div class="acoes">
+    <button class="btn-instalar" id="btn-instalar" onclick="instalarApp()">↓ Instalar app</button>
+    <button class="btn-novo" onclick="abrirModal()">+ Novo Produto</button>
+  </div>
 </header>
 <div class="toolbar">
   <input type="text" id="busca" placeholder="Buscar produto..." oninput="renderizar()" />
@@ -158,13 +175,46 @@
     salvarLocal(); document.getElementById('overlay').classList.remove('aberto'); editandoId=null; renderizar();
   }
   function deletar(id){const p=produtos.find(x=>x.id===id);if(!confirm('Remover "'+p?.nome+'"?'))return;produtos=produtos.filter(x=>x.id!==id);salvarLocal();renderizar();toast('Removido.');}
-  function copiarCopy(id){const p=produtos.find(x=>x.id===id);navigator.clipboard.writeText([p.copy,p.angulos].filter(Boolean).join('
-
-')).then(()=>toast('Copiado!'));}
-  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/
-/g,'<br>');}
+  function copiarCopy(id){const p=produtos.find(x=>x.id===id);navigator.clipboard.writeText([p.copy,p.angulos].filter(Boolean).join('\n\n')).then(()=>toast('Copiado!'));}
+  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>');}
   function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
   renderizar();
+
+  /* ---- PWA: instalação + offline ---- */
+  let promptInstalar = null;
+  const btnInstalar = document.getElementById('btn-instalar');
+  // Android/desktop: capturamos o evento e mostramos nosso botão.
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    promptInstalar = e;
+    btnInstalar.classList.add('visivel');
+  });
+  function instalarApp() {
+    if (!promptInstalar) {
+      // iOS/Safari não dispara o evento: instrução manual.
+      toast('No iPhone: toque em Compartilhar → "Adicionar à Tela de Início".');
+      return;
+    }
+    promptInstalar.prompt();
+    promptInstalar.userChoice.finally(() => {
+      promptInstalar = null;
+      btnInstalar.classList.remove('visivel');
+    });
+  }
+  window.addEventListener('appinstalled', () => {
+    btnInstalar.classList.remove('visivel');
+    toast('App instalado!');
+  });
+  // Em iOS, mostra o botão (com instrução manual) quando ainda não está instalado.
+  const ehiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const jaInstalado = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (ehiOS && !jaInstalado) btnInstalar.classList.add('visivel');
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch((err) => console.warn('SW falhou:', err));
+    });
+  }
 </script>
 </body>
                                                                   </html>
